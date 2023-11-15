@@ -5,6 +5,11 @@ use core::ops::{Add, AddAssign, Sub, SubAssign};
 
 pub use core::time::Duration;
 
+
+pub fn current_ticks() -> u128 {
+    arceos_api::time::ax_current_time().as_nanos() 
+}
+
 /// A measurement of a monotonically nondecreasing clock.
 /// Opaque and useful only with [`Duration`].
 #[derive(Clone, Copy)]

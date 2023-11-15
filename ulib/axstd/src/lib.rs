@@ -50,6 +50,8 @@
 #![feature(doc_cfg)]
 #![feature(doc_auto_cfg)]
 #![feature(ip_in_core)]
+// HashMap
+#![feature(hashmap_internals)]
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
@@ -71,6 +73,7 @@ pub mod process;
 pub mod sync;
 pub mod thread;
 pub mod time;
+pub mod map;
 
 #[cfg(feature = "fs")]
 pub mod fs;

@@ -189,6 +189,11 @@ pub extern "C" fn rust_main(cpu_id: usize, dtb: usize) -> ! {
         core::hint::spin_loop();
     }
 
+    {
+        let ga = axalloc::global_allocator();
+        info!("Used pages {} / Used bytes {}", ga.used_pages(), ga.used_bytes());
+    }
+
     unsafe { main() };
 
     #[cfg(feature = "multitask")]
@@ -229,6 +234,7 @@ fn init_allocator() {
     }
 }
 
+// remap Kernel to memory after mmu open?
 #[cfg(feature = "paging")]
 fn remap_kernel_memory() -> Result<(), axhal::paging::PagingError> {
     use axhal::mem::{memory_regions, phys_to_virt};

@@ -19,7 +19,7 @@ pub fn parse_dtb(dtb_pa: usize) -> Result<DtbInfo, FdtError> {
         } 
     };
 
-    /// memory area:
+    // memory area:
     let memory_addr = fdt
         .memory()
         .regions()
@@ -37,8 +37,8 @@ pub fn parse_dtb(dtb_pa: usize) -> Result<DtbInfo, FdtError> {
     let mut mmio_regions: Vec<(usize, usize)> = vec![];
     
 
-    /// virtio_mmio
-    /// in /soc/virtio_mmio
+    // virtio_mmio
+    // in /soc/virtio_mmio
     for node in fdt.find_all_nodes("/soc/virtio_mmio") {
         if let Some(iter) = node.raw_reg() {
             mmio_regions.extend(iter.map(| reg | {

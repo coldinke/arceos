@@ -40,6 +40,7 @@ members = [
     "modules/axconfig",
     "modules/axdisplay",
     "modules/axdriver",
+    "modules/axdtb",
     "modules/axfs",
     "modules/axhal",
     "modules/axlog",
@@ -69,7 +70,7 @@ members = [
     "apps/task/sleep",
     "apps/task/yield",
     "apps/task/priority",
-    "apps/task/tls",
+    "apps/task/tls", "modules/axdtb",
 ]
 
 [profile.release]

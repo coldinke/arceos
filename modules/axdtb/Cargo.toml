@@ -1,0 +1,11 @@
+[package]
+name = "axdtb"
+version = "0.1.0"
+edition = "2021"
+authors = ["coldinke"]
+description = "ArceOS Device tree blob parse module"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+fdt = "0.1.5"

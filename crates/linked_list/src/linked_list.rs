@@ -10,7 +10,7 @@
 extern crate alloc;
 
 use alloc::{boxed::Box, sync::Arc};
-use core::ptr::NonNull;
+use core::{ptr::NonNull, num::Wrapping};
 
 use crate::unsafe_list::{self, Adapter, Cursor, Links};
 
@@ -141,6 +141,17 @@ impl<G: AdapterWrapped> List<G> {
     #[inline]
     pub const fn is_empty(&self) -> bool {
         self.list.is_empty()
+    }
+
+    /// Adds the given object to the begin (front) of the list.
+    /// 
+    /// It is dropped if it's already on this (or another) list; this can happen for 
+    /// reference-counted objects, so droppint means decrementing the reference count.
+    pub fn push_front(&mut self, data: G::Wrapped) {
+        let ptr = data.into_pointer();
+        
+        // SAFETY: we took ownership of the entry, so it is dafe to insert it.
+        unsafe { self.list.push_front(ptr.as_ref()) }
     }
 
     /// Adds the given object to the end (back) of the list.

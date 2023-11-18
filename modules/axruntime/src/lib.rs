@@ -207,7 +207,6 @@ pub extern "C" fn rust_main(cpu_id: usize, dtb: usize) -> ! {
     }
 
     {
-        use axalloc::global_allocator;
         let ga = axalloc::global_allocator();
         info!("Used pages {} / Used bytes {}", ga.used_pages(), ga.used_bytes());
     }

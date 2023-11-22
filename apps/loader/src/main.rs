@@ -1,10 +1,14 @@
+#![feature(asm_const)]
 #![cfg_attr(feature = "axstd", no_std)]
 #![cfg_attr(feature = "axstd", no_main)]
+
+use core::ptr;
 
 #[cfg(feature = "axstd")]
 use axstd::println;
 
 const PLASH_START: usize = 0x22_000_000;
+const RUN_START: usize = 0xffff_ffc0_8010_0000;
 
 #[cfg_attr(feature = "axstd", no_mangle)]                
 fn main() {
@@ -18,16 +22,33 @@ fn main() {
     );
     offset += 8;
 
+
+
+
     println!("Loading payload...");
-    (0..apps_num).for_each(|i| {
+    for i in 0..apps_num {
         let app = unsafe {
             APPInfo::load(plash_start, offset)
         };
-        println!("App: {}, size: {}, byte content: {:?}, usize content: {:#x}", i, app.app_size, app.app_data, bytes_to_usize(app.app_data));
+        println!("App: {}, size: {}, load code: {:?}, address :[{:?}]", i, app.app_size, app.app_data, app.app_data.as_ptr());
         offset = offset + 8 + (app.app_size as isize);
-    });
 
-    println!("Load payload ok!");
+        let run_code = unsafe {
+            core::slice::from_raw_parts_mut(RUN_START as *mut u8, app.app_size)
+        };
+        run_code.copy_from_slice(app.app_data);
+        println!("run code: {:?}, address [{:?}]", run_code, run_code.as_ptr());
+        unsafe { core::arch::asm!("
+            li      t2, {run_start}
+            jalr    t2",
+            run_start = const RUN_START,
+        )}
+
+        // // clear
+        unsafe {
+            ptr::write_bytes(run_code.as_mut_ptr(), 0, run_code.len())
+        };
+    }    
 }
 
 #[inline]
@@ -47,9 +68,9 @@ impl APPInfo {
                 core::slice::from_raw_parts(app_start.offset(offset), 8)
             }
         );
-        let load_size = ((app_size + 8) / 8) * 8 ; 
+        // let load_size = ((app_size + 8) / 8) * 8 ; 
         let app_data = unsafe {
-            core::slice::from_raw_parts(app_start.offset(offset + 8), load_size)
+            core::slice::from_raw_parts(app_start.offset(offset + 8), app_size)
         };
 
         Self {

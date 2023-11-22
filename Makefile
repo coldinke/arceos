@@ -46,7 +46,7 @@ GRAPHIC ?= n
 BUS ?= mmio
 
 DISK_IMG ?= disk.img
-QEMU_LOG ?= n
+QEMU_LOG ?= y
 NET_DUMP ?= n
 NET_DEV ?= user
 

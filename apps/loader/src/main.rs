@@ -8,16 +8,21 @@ const PLASH_START: usize = 0x22_000_000;
 
 #[cfg_attr(feature = "axstd", no_mangle)]                
 fn main() {
+    // Big endian
     let apps_start = PLASH_START as *const u8;
-    let apps_size = 32; // Dangerous!!! We need to get accurate size of apps.
+    // 1 byte to store the size of app
+    let size_byte = unsafe {
+        core::slice::from_raw_parts(apps_start.offset(0 as isize), 8)
+    };
+    let apps_size = bytes_to_usize(size_byte);
 
     println!("Loading payload...");
 
     let code = unsafe {
-        core::slice::from_raw_parts(apps_start, apps_size)
+        core::slice::from_raw_parts(apps_start.offset(8 as isize), apps_size)
     };
 
-    println!("content: {:#x}", bytes_to_usize(&code[..8]));
+    println!("content: {:?}, size: {}", code, apps_size);
     println!("Load payload ok!");
 }
 

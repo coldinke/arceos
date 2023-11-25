@@ -47,40 +47,30 @@ fn main() {
     offset += 8;
 
     // register the sbi instruction?
+    // Add the number of SYSCALL to handle function
     register_abi(SYS_HELLO, abi_hello as usize);
     register_abi(SYS_PUTCHAR, abi_putchar as usize);
     register_abi(SYS_TERMINATE, abi_terminate as usize);
 
     println!("Loading payload...");
-    for i in 0..apps_num {
-        let app = unsafe {
-            APPInfo::load(plash_start, offset)
-        };
-        println!("App: {}, size: {}, load code: {:?}, address :[{:?}]", i, app.app_size, app.app_data, app.app_data.as_ptr());
+    for _i in 0..apps_num {
+        let app = APPInfo::load(plash_start, offset);
+        // println!("App: {}, size: {}, load code: {:?}, address :[{:?}]", i, app.app_size, app.app_data, app.app_data.as_ptr());
         offset = offset + 8 + (app.app_size as isize);
 
         let run_code = unsafe {
             core::slice::from_raw_parts_mut(RUN_START as *mut u8, app.app_size)
         };
         run_code.copy_from_slice(app.app_data);
-        println!("run code: {:?}, address [{:?}]", run_code, run_code.as_ptr());
+        // println!("run code: {:?}, address [{:?}]", run_code, run_code.as_ptr());
 
-        let arg0: u8 = b'A';
         unsafe { core::arch::asm!("
-            li      t0, {abi_num}
-            slli    t0, t0, 3
-            la      t1, {abi_table}
-            add     t1, t1, t0
-            ld      t1, (t1)
-            jalr    t1
+            la      a0, {abi_table}
             li      t2, {run_start}
-            jalr    t2
-            j   .",
+            jalr    t2",
             run_start = const RUN_START,
             abi_table = sym ABI_TABLE,
-            // abi_num = const SYS_PUTCHAR,
-            abi_num = const SYS_TERMINATE,
-            // in("a0") arg0,
+            clobber_abi("C")
         )}
 
         // // clear
